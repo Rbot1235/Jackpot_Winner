@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IBEX Payroll Jackpot winner is</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1B1464;
+    --ink: #22124A;
+    --muted: #6B5F99;
+    --light: #E6DEFF;
+    --gold: #FFC93C;
+    --tile: #FFC93C;
+    --font: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: #fff;
+    font-family: var(--font);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    -webkit-tap-highlight-color: transparent;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(255, 201, 60, .28), transparent 55%),
+      repeating-conic-gradient(from 0deg at 50% 18%, #241A7A 0deg 10deg, #1B1464 10deg 20deg);
+  }
+  h1 {
+    font-family: "Bungee", "Impact", sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.5rem, 5.6vw, 2.8rem);
+    line-height: 1.1;
+    text-align: center;
+    margin: 6px 0 4px;
+    color: var(--gold);
+    text-shadow: 0 3px 0 #C2410C, 0 6px 0 #22124A, 0 0 24px rgba(255, 201, 60, .45);
+  }
+  .sub { margin: 4px 0 14px; color: var(--light); font-size: 1.05rem; text-align: center; }
+
+  .slots { display: flex; gap: 8px; margin-bottom: 14px; }
+  .slot {
+    width: clamp(36px, 10vw, 52px);
+    height: clamp(44px, 12vw, 62px);
+    border-bottom: 5px solid var(--gold);
+    color: var(--gold);
+    text-shadow: 0 0 14px rgba(255, 201, 60, .6);
+    display: grid;
+    place-items: center;
+    font-size: clamp(1.6rem, 6vw, 2.4rem);
+    font-weight: 700;
+  }
+  .slot.filled { animation: pop .35s ease-out; }
+  @keyframes pop { 0% { transform: scale(.4); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+  .stage {
+    position: relative;
+    width: min(94vw, 720px, 66vh);
+    aspect-ratio: 1;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 4px solid var(--gold);
+    box-shadow: 0 0 0 4px #22124A, 0 0 40px rgba(255, 201, 60, .45);
+    touch-action: none;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  .overlay {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    background: rgba(27, 20, 100, .8);
+    padding: 20px;
+  }
+  .overlay[hidden] { display: none; }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px 20px;
+    max-width: 340px;
+    text-align: center;
+    color: var(--ink);
+  }
+  .card h2 { margin: 0 0 8px; font-size: 1.7rem; color: var(--ink); }
+  .card p { margin: 0 0 16px; color: var(--muted); line-height: 1.45; }
+  .card p:empty { display: none; }
+
+  .reveal { display: flex; justify-content: center; gap: 4px; margin: 4px 0 12px; }
+  .reveal:empty { display: none; }
+  .reveal span {
+    display: inline-grid; place-items: center;
+    width: 1.5em; height: 1.7em;
+    background: var(--tile);
+    border-radius: 8px;
+    font-size: clamp(1.5rem, 7vw, 2.2rem);
+    font-weight: 700;
+    opacity: 0;
+    animation: drop .5s ease-out forwards;
+  }
+  @keyframes drop {
+    0% { opacity: 0; transform: translateY(-30px) rotate(-12deg); }
+    70% { opacity: 1; transform: translateY(4px) rotate(4deg); }
+    100% { opacity: 1; transform: none; }
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: var(--ink);
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 26px;
+    cursor: pointer;
+  }
+  button:focus-visible { outline: 3px solid var(--tile); outline-offset: 3px; }
+
+  .help { margin: 16px 0 0; color: var(--light); font-size: .95rem; text-align: center; }
+
+  .pad { display: none; margin-top: 14px; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 56px); gap: 8px; }
+  .pad button { padding: 0; font-size: 1.4rem; border-radius: 14px; background: var(--gold); color: var(--ink); }
+  .pad .up { grid-column: 2; grid-row: 1; }
+  .pad .left { grid-column: 1; grid-row: 2; }
+  .pad .down { grid-column: 2; grid-row: 2; }
+  .pad .right { grid-column: 3; grid-row: 2; }
+  @media (pointer: coarse) { .pad { display: grid; } }
+
+  #confetti { position: fixed; inset: 0; pointer-events: none; width: 100%; height: 100%; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slot.filled, .reveal span { animation: none; opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <h1>IBEX Payroll Jackpot winner is</h1>
+  <p class="sub">Eat the letters in the right order to reveal the name.</p>
+
+  <div class="slots" id="slots" aria-live="polite"></div>
+
+  <div class="stage" id="stage">
+    <canvas id="board" aria-label="Snake game board"></canvas>
+    <div class="overlay" id="overlay">
+      <div class="card">
+        <h2 id="ovTitle"></h2>
+        <div class="reveal" id="reveal"></div>
+        <p id="ovText"></p>
+        <button id="ovBtn"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad" aria-label="Direction controls">
+    <button class="up" data-dir="up" aria-label="Up">▲</button>
+    <button class="left" data-dir="left" aria-label="Left">◀</button>
+    <button class="down" data-dir="down" aria-label="Down">▼</button>
+    <button class="right" data-dir="right" aria-label="Right">▶</button>
+  </div>
+
+  <p class="help">Arrow keys or WASD to move. Space to pause. Swipe on phones.</p>
+
+  <canvas id="confetti"></canvas>
+
+<script>
+/* ================= SETTINGS (edit these) ================= */
+const CONFIG = {
+  // The name, encoded so it isn't readable at a glance in the page source.
+  // To change it: open your browser console (F12) and run  btoa("NEWNAME")
+  // then paste the result here.
+  encodedName: "TElBTk5F",
+
+  // Optional line shown under the name when it's revealed. Leave "" for none.
+  message: "",
+
+  gridSize: 18,     // cells per side
+  startSpeed: 200,  // ms per move at the start (lower = faster)
+  speedStep: 6,     // how much faster after each correct letter
+  minSpeed: 140
+};
+/* ========================================================= */
+
+const NAME = atob(CONFIG.encodedName).toUpperCase();
+const N = CONFIG.gridSize;
+const COLORS = { board: "#0E6B4F", check: "#0C6047", snake: "#FF5FA2", head: "#E0267A", tile: "#FFC93C", ink: "#22124A" };
+const DIRS = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const canvas = document.getElementById("board");
+const ctx = canvas.getContext("2d");
+const slotsEl = document.getElementById("slots");
+const overlay = document.getElementById("overlay");
+const ovTitle = document.getElementById("ovTitle");
+const ovText = document.getElementById("ovText");
+const ovBtn = document.getElementById("ovBtn");
+const revealEl = document.getElementById("reveal");
+
+let snake, dir, queue, letters, collected, state = "start", timer = null, speed;
+
+/* ---------- setup ---------- */
+function buildSlots() {
+  slotsEl.innerHTML = "";
+  for (let i = 0; i < NAME.length; i++) {
+    const s = document.createElement("div");
+    s.className = "slot";
+    s.setAttribute("aria-label", "Letter " + (i + 1) + " hidden");
+    slotsEl.appendChild(s);
+  }
+}
+
+function fillSlot(i, ch) {
+  const s = slotsEl.children[i];
+  s.textContent = ch;
+  s.classList.add("filled");
+  s.setAttribute("aria-label", "Letter " + (i + 1) + ": " + ch);
+}
+
+function reset() {
+  const mid = Math.floor(N / 2);
+  snake = [{ x: 4, y: mid }, { x: 3, y: mid }, { x: 2, y: mid }];
+  dir = DIRS.right;
+  queue = [];
+  collected = [];
+  speed = CONFIG.startSpeed;
+  buildSlots();
+  spawnLetters();
+  draw();
+}
+
+/* ---------- letters ---------- */
+function occupied(x, y) {
+  return snake.some(s => s.x === x && s.y === y) || letters.some(l => l.x === x && l.y === y);
+}
+
+function freeCell() {
+  const head = snake[0];
+  for (let tries = 0; tries < 500; tries++) {
+    const x = Math.floor(Math.random() * N), y = Math.floor(Math.random() * N);
+    const near = Math.abs(x - head.x) + Math.abs(y - head.y) < 3;
+    if (!occupied(x, y) && !near) return { x, y };
+  }
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!occupied(x, y)) return { x, y };
+  return null;
+}
+
+function spawnLetters() {
+  letters = [];
+  const needed = NAME[collected.length];
+  const p = freeCell();
+  letters.push({ ...p, ch: needed, correct: true });
+
+  // Decoys: never the needed letter. Often other letters from the name, to keep it tricky.
+  const fromName = [...new Set(NAME.split(""))].filter(c => c !== needed && /[A-Z]/.test(c));
+  const others = ALPHABET.split("").filter(c => c !== needed);
+  const decoys = Math.min(6 + collected.length * 2, 14);
+  for (let i = 0; i < decoys; i++) {
+    const pool = fromName.length && Math.random() < 0.6 ? fromName : others;
+    const cell = freeCell();
+    if (cell) letters.push({ ...cell, ch: pool[Math.floor(Math.random() * pool.length)], correct: false });
+  }
+}
+
+/* ---------- game loop ---------- */
+function tick() {
+  step();
+  if (state === "playing") timer = setTimeout(tick, speed);
+}
+
+function step() {
+  if (queue.length) dir = queue.shift();
+  const head = snake[0];
+  // Walls wrap: leaving one side brings the snake in from the opposite side.
+  const nx = (head.x + dir.x + N) % N, ny = (head.y + dir.y + N) % N;
+
+  const hit = letters.find(l => l.x === nx && l.y === ny);
+  const grow = !!(hit && hit.correct);
+  const body = grow ? snake : snake.slice(0, -1);
+  if (body.some(s => s.x === nx && s.y === ny)) return gameOver("You ran into your own tail.");
+  if (hit && !hit.correct) return gameOver("Wrong letter: " + hit.ch + ".");
+
+  snake.unshift({ x: nx, y: ny });
+  if (!grow) snake.pop();
+
+  if (grow) {
+    collected.push(hit.ch);
+    fillSlot(collected.length - 1, hit.ch);
+    if (collected.length === NAME.length) { letters = []; draw(); return win(); }
+    speed = Math.max(CONFIG.minSpeed, speed - CONFIG.speedStep);
+    spawnLetters();
+  }
+  draw();
+}
+
+function setDir(name) {
+  const d = DIRS[name];
+  if (!d) return;
+  if (state === "paused") resume();
+  if (state !== "playing") return;
+  const last = queue.length ? queue[queue.length - 1] : dir;
+  if (d === last || (d.x === -last.x && d.y === -last.y)) return;
+  if (queue.length < 3) queue.push(d);
+}
+
+/* ---------- states ---------- */
+function showOverlay(title, text, btn, revealName) {
+  ovTitle.textContent = title;
+  ovText.textContent = text;
+  ovBtn.textContent = btn;
+  revealEl.innerHTML = "";
+  if (revealName) {
+    [...NAME].forEach((ch, i) => {
+      const s = document.createElement("span");
+      s.textContent = ch;
+      s.style.animationDelay = (i * 0.15) + "s";
+      revealEl.appendChild(s);
+    });
+  }
+  overlay.hidden = false;
+  ovBtn.focus();
+}
+
+function start() {
+  reset();
+  overlay.hidden = true;
+  state = "playing";
+  clearTimeout(timer);
+  timer = setTimeout(tick, speed);
+}
+
+function pause() {
+  if (state !== "playing") return;
+  state = "paused";
+  clearTimeout(timer);
+  showOverlay("Paused", "Press Space or tap Resume to keep going.", "Resume");
+}
+
+function resume() {
+  overlay.hidden = true;
+  state = "playing";
+  timer = setTimeout(tick, speed);
+}
+
+function gameOver(reason) {
+  state = "over";
+  clearTimeout(timer);
+  draw();
+  showOverlay("Game over", reason + " You found " + collected.length + " of " + NAME.length + " letters.", "Try again");
+}
+
+function win() {
+  state = "won";
+  clearTimeout(timer);
+  showOverlay("It's", CONFIG.message, "Play again", true);
+  confetti();
+}
+
+ovBtn.addEventListener("click", () => {
+  if (state === "paused") resume(); else start();
+});
+
+/* ---------- input ---------- */
+const KEYS = {
+  ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
+  w: "up", s: "down", a: "left", d: "right", W: "up", S: "down", A: "left", D: "right"
+};
+document.addEventListener("keydown", e => {
+  if (KEYS[e.key]) { e.preventDefault(); setDir(KEYS[e.key]); return; }
+  if (e.key === " ") {
+    e.preventDefault();
+    if (state === "playing") pause();
+    else if (state === "paused") resume();
+    else if (document.activeElement !== ovBtn) start();
+  }
+});
+
+document.querySelectorAll(".pad button").forEach(b =>
+  b.addEventListener("pointerdown", e => { e.preventDefault(); setDir(b.dataset.dir); })
+);
+
+let touchStart = null;
+const stage = document.getElementById("stage");
+stage.addEventListener("touchstart", e => { const t = e.touches[0]; touchStart = { x: t.clientX, y: t.clientY }; }, { passive: true });
+stage.addEventListener("touchend", e => {
+  if (!touchStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
+  touchStart = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+  setDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"));
+});
+
+document.addEventListener("visibilitychange", () => { if (document.hidden) pause(); });
+
+/* ---------- drawing ---------- */
+function rrect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function letterAt(ch, cx, cy, c) {
+  ctx.fillStyle = COLORS.ink;
+  ctx.font = "700 " + Math.round(c * 0.62) + "px Fredoka, 'Trebuchet MS', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(ch, cx, cy + c * 0.04);
+}
+
+function draw() {
+  const c = canvas.width / N;
+  ctx.fillStyle = COLORS.board;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = COLORS.check;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if ((x + y) % 2) ctx.fillRect(x * c, y * c, c, c);
+
+  // letters on the board
+  letters.forEach(l => {
+    ctx.fillStyle = COLORS.tile;
+    rrect(l.x * c + c * 0.08, l.y * c + c * 0.08, c * 0.84, c * 0.84, c * 0.22);
+    letterAt(l.ch, l.x * c + c / 2, l.y * c + c / 2, c);
+  });
+
+  // snake (collected letters ride on the segments behind the head)
+  for (let i = snake.length - 1; i >= 0; i--) {
+    const s = snake[i];
+    ctx.fillStyle = i === 0 ? COLORS.head : COLORS.snake;
+    rrect(s.x * c + c * 0.05, s.y * c + c * 0.05, c * 0.9, c * 0.9, c * 0.3);
+    if (i >= 1 && i <= collected.length) letterAt(collected[i - 1], s.x * c + c / 2, s.y * c + c / 2, c);
+  }
+
+  // eyes
+  const h = snake[0], cx = h.x * c + c / 2, cy = h.y * c + c / 2;
+  const px = -dir.y, py = dir.x;
+  [-1, 1].forEach(side => {
+    const ex = cx + dir.x * c * 0.18 + px * side * c * 0.2;
+    const ey = cy + dir.y * c * 0.18 + py * side * c * 0.2;
+    ctx.fillStyle = "#fff";
+    ctx.beginPath(); ctx.arc(ex, ey, c * 0.13, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = COLORS.ink;
+    ctx.beginPath(); ctx.arc(ex + dir.x * c * 0.04, ey + dir.y * c * 0.04, c * 0.06, 0, Math.PI * 2); ctx.fill();
+  });
+}
+
+function resize() {
+  const size = canvas.getBoundingClientRect().width;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.height = Math.round(size * dpr);
+  if (snake) draw();
+}
+window.addEventListener("resize", resize);
+
+/* ---------- confetti ---------- */
+function confetti() {
+  if (reduceMotion) return;
+  const cv = document.getElementById("confetti");
+  const cx2 = cv.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+  cx2.scale(dpr, dpr);
+  const colors = ["#FFC93C", "#FF5FA2", "#3DDC97", "#8FB8FF", "#ffffff"];
+  const parts = Array.from({ length: 180 }, () => ({
+    x: innerWidth / 2, y: innerHeight / 2.5,
+    vx: (Math.random() - 0.5) * 16, vy: Math.random() * -16 - 4,
+    w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+    r: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+    color: colors[Math.floor(Math.random() * colors.length)]
+  }));
+  const end = performance.now() + 3500;
+  (function frame(now) {
+    cx2.clearRect(0, 0, innerWidth, innerHeight);
+    parts.forEach(p => {
+      p.vy += 0.35; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      cx2.save(); cx2.translate(p.x, p.y); cx2.rotate(p.r);
+      cx2.fillStyle = p.color; cx2.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      cx2.restore();
+    });
+    if (now < end) requestAnimationFrame(frame);
+    else cx2.clearRect(0, 0, innerWidth, innerHeight);
+  })(performance.now());
+}
+
+/* ---------- go ---------- */
+reset();
+resize();
+if (document.fonts) document.fonts.ready.then(draw);
+showOverlay("Ready?", "Eat the letters in the right order to spell a mystery name. Go through a wall to come out the other side. A wrong letter or your own tail ends the game.", "Start game");
+</script>
+</body>
+</html>
